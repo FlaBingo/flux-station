@@ -1,6 +1,9 @@
-import { pgTable, serial, text } from 'drizzle-orm/pg-core';
-
-// export const demoUsers = pgTable('demo_users', {
-//   id: serial('id').primaryKey(),
-//   name: text('name'),
-// });
+export * from "./schemas/org.js"
+export * from "./schemas/user.js"
+export * from "./schemas/machineModel.js"
+export * from "./schemas/machine.js"
+export * from "./schemas/sensorMapping.js"
+export * from "./schemas/sensorLog.js"
+export * from "./schemas/maintenanceAlert.js"
+export * from "./schemas/repairTicket.js"
+export * from "./schemas/partnership.js"

@@ -1,0 +1,1 @@
+ALTER TABLE "sensor_logs" ALTER COLUMN "id" SET DATA TYPE bigserial;
