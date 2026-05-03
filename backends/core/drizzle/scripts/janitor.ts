@@ -1,8 +1,8 @@
 // Retention Policy
 
 import { lt } from "drizzle-orm"
-import { db } from "./db.js"
-import { sensorLogs } from "./schema.js"
+import { db } from "../db.js"
+import { sensorLogs } from "../schema.js"
 
 async function cleanupOldLogs() {
   console.log("🧹 Running storage cleanup...")

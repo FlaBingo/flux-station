@@ -1,5 +1,5 @@
-import { db } from "./db.js";
-import { machineModels, machines, organizations, sensorMappings, users } from "./schema.js";
+import { db } from "../db.js";
+import { machineModels, machines, organizations, sensorMappings, users } from "../schema.js";
 
 
 async function main() {
