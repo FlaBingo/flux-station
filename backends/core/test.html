@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FluxStation WS Tester</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background: #121212;
+        color: #e0e0e0;
+        padding: 20px;
+      }
+      #log {
+        background: #000;
+        border: 1px solid #333;
+        height: 400px;
+        overflow-y: scroll;
+        padding: 10px;
+        font-family: monospace;
+      }
+      .telemetry {
+        color: #4caf50;
+      }
+      .status {
+        color: #2196f3;
+        font-weight: bold;
+      }
+      .error {
+        color: #f44336;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>FluxStation Live Streams</h1>
+    <p>Status: <span id="status" class="status">Connecting...</span></p>
+    <div id="log"></div>
+
+    <script>
+      const logElement = document.getElementById("log");
+      const statusElement = document.getElementById("status");
+
+      const socket = new WebSocket("ws://localhost:8080");
+      socket.onopen = () => {
+        statusElement.innerText = "Connected";
+        addLog("System", "WebSocket connection established.");
+      };
+
+      socket.onmessage = (event) => {
+        // parsing raw string back into a JSON object
+        const msg = JSON.parse(event.data);
+        if (msg.type === "TELEMETRY") {
+          const { mappingId, value, timestamp } = msg.data;
+          addLog(
+            "Telemetry",
+            `Sensor ${mappingId}: ${value} | ${new Date(timestamp).toLocaleTimeString()}`,
+            "telemetry",
+          );
+        }
+      };
+
+      socket.onerror = (error) => {
+        statusElement.innerText = "Error";
+        statusElement.className = "error";
+        addLog("Error", "WebSocket error occurred.");
+      };
+
+      socket.onclose = () => {
+        statusElement.innerText = "Disconnected";
+        addLog("System", "Connection closed by error.");
+      };
+
+      function addLog(label, message, className = "") {
+        const div = document.createElement("div");
+        div.className = className;
+        div.innerText = `[${label}] ${message}`;
+        logElement.prepend(div);
+      }
+    </script>
+  </body>
+</html>

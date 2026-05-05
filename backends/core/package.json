@@ -11,7 +11,9 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:push": "drizzle-kit push",
-    "db:seed": "tsx ./drizzle/seed.ts"
+    "db:seed": "tsx ./drizzle/scripts/seed.ts",
+    "db:simulate": "tsx ./drizzle/scripts/simulator.ts",
+    "db:clean": "tsx ./drizzle/scripts/janitor.ts"
   },
   "keywords": [],
   "author": "",
