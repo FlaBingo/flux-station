@@ -4,7 +4,8 @@ import http from "http"
 import cors from "cors"
 import "dotenv/config"
 import { db } from "./drizzle/db.js";
-import { sensorLogs } from "./drizzle/schema.js";
+import { sensorLogs, sensorMappings } from "./drizzle/schema.js";
+import { eq } from "drizzle-orm";
 
 const app = express();
 app.use(cors())
@@ -49,13 +50,15 @@ app.post("/api/ingest", async (req, res) => {
     await db.insert(sensorLogs).values({
       mappingId: mappingId,
       value: value,
-    })
+    }).returning();
 
+    const sensor_type = await db.select({ type: sensorMappings.type}).from(sensorMappings).where(eq(sensorMappings.id, mappingId));
+    const type = sensor_type[0]?.type
     // broadcasting
     // iterating through all connected clients manually
     const payload = JSON.stringify({
       type: "TELEMETRY",
-      data: { mappingId, value, timestamp: new Date()}
+      data: { mappingId, value, type, timestamp: new Date()}
     })
     wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {

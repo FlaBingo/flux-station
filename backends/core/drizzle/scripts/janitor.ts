@@ -16,4 +16,4 @@ async function cleanupOldLogs() {
   }
 }
 
-setInterval(cleanupOldLogs, 60 * 60 * 1000) // every hour
+setInterval(cleanupOldLogs, 3000) // every hour -> 60 * 60 * 1000

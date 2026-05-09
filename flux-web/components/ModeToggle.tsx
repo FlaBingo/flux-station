@@ -12,7 +12,6 @@ export function ModeToggle() {
     <Button
       variant="outline"
       size="icon"
-      className="bg-slate-900/50 border-slate-800 hover:bg-slate-800"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
     >
       {theme === "light" ? (<Moon />) : (<Sun />)}
