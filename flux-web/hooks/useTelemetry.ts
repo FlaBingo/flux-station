@@ -4,9 +4,9 @@ import { useStore } from "@/store/useStore"
 import { useEffect, useRef } from "react";
 
 export const useTelemetry = (url: string = "ws://localhost:8080") => {
-  const { updateTelemetry, setConnection } = useStore();
-
+  const { updateTelemetry, setConnection, resetTelemetry } = useStore();
   const socketRef = useRef<WebSocket | null>(null);
+  const watchdogRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -16,10 +16,22 @@ export const useTelemetry = (url: string = "ws://localhost:8080") => {
       const socket = new WebSocket(url);
       socketRef.current = socket;
 
+      const feedWatchdog = () => {
+        if (watchdogRef.current) clearTimeout(watchdogRef.current);
+
+        watchdogRef.current = setTimeout(() => {
+          if (isMounted) {
+            console.log("Telemetry stream went silent. Zeroing metrics.");
+            resetTelemetry();
+          }
+        }, 2500);
+      }
+
       socket.onopen = () => {
         if (!isMounted) return;
         setConnection(true);
         console.log("FluxHub Connected");
+        feedWatchdog();
       };
 
       socket.onmessage = (event) => {
@@ -27,13 +39,14 @@ export const useTelemetry = (url: string = "ws://localhost:8080") => {
         try {
           const payload = JSON.parse(event.data);
           if (payload.type === "TELEMETRY" && payload.data) {
+            feedWatchdog();
             const { type, value } = payload.data;
 
             if (type === "Vibration") {
               updateTelemetry({ vibration: value })
             } else if (type === "Temperature") {
               updateTelemetry({ temperature: value })
-            } else {
+            } else if (type === "Power") {
               updateTelemetry({ power: value })
             }
           }
@@ -45,6 +58,9 @@ export const useTelemetry = (url: string = "ws://localhost:8080") => {
       socket.onclose = () => {
         if (!isMounted) return;
         setConnection(false);
+        resetTelemetry();
+        if (watchdogRef.current) clearTimeout(watchdogRef.current);
+
         console.log("FluxHub Disconnected. Retrying in 3s...")
         setTimeout(() => {
           if (isMounted) connect();
@@ -60,9 +76,8 @@ export const useTelemetry = (url: string = "ws://localhost:8080") => {
 
     return () => {
       isMounted = false;
-      if (socketRef.current) {
-        socketRef.current.close();
-      }
+      if (socketRef.current) socketRef.current.close();
+      if (watchdogRef.current) clearTimeout(watchdogRef.current);
     };
-  }, [url, updateTelemetry, setConnection]);
+  }, [url, updateTelemetry, setConnection, resetTelemetry]);
 }

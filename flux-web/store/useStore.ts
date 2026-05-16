@@ -10,6 +10,7 @@ interface TelemetryState {
 
   updateTelemetry: (data: Partial<TelemetryState>) => void;
   setConnection: (status: boolean) => void;
+  resetTelemetry: () => void;
 }
 
 export const useStore = create<TelemetryState>((set) => ({
@@ -26,4 +27,10 @@ export const useStore = create<TelemetryState>((set) => ({
   })),
 
   setConnection: (status) => set({ isConnected: status }),
+
+  resetTelemetry: () => set((state) => ({
+    vibration: 0,
+    power: 0,
+    temperature: state.temperature
+  }))
 }))
